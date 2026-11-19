@@ -6,21 +6,16 @@ MVMT is an R package for gene-level association testing across multiple correlat
 
 ## Installation
 
-Install the dependencies and the downloaded source package in R:
+Install MVMT directly from GitHub in R:
 
 ```r
-install.packages(c("data.table", "dplyr"))
-
-install.packages(
-  "MVMT_0.1.0.9000.tar.gz",
-  repos = NULL,
-  type = "source"
-)
+install.packages("remotes")
+remotes::install_github("yuke1233/MVMT.R")
 
 library(MVMT)
 ```
 
-Replace the archive path with the location of your downloaded file. The `parallel` package is included with R.
+Required dependencies are installed automatically. The `parallel` package is included with R. While the repository is private, installation requires a GitHub personal access token with access to the repository.
 
 ## Usage
 
@@ -52,21 +47,13 @@ Provide at least two traits. The order of `trait_names` must match `assoc_files`
 | `trait_names` | Trait names in the same order as `assoc_files` | Required |
 | `LD_path` | Directory containing per-gene LD files | Required |
 | `result_path` | Output directory; created if necessary | Required |
-| `prop` | Cumulative proportion of positive LD eigenvalue variance to retain | `0.9` |
-| `n_cores` | Number of cores for gene-wise analysis | `1` |
+| `prop` | Cumulative proportion of positive LD eigenvalue variance to retain | Specify explicitly; e.g. `0.9` |
+| `n_cores` | Number of cores for gene-wise analysis | Specify explicitly; e.g. `1` |
 | `af_threshold` | Maximum absolute allele-frequency difference after allele alignment; differences must be below this value | `0.2` |
 
 ### Parallel execution
 
-On Linux or macOS, increase `n_cores`, for example to `10`. On Windows, use `n_cores = 1`; gene-wise parallelism uses `parallel::mclapply()`.
-
-When running multiple gene workers, set BLAS threads to one before starting R to avoid nested parallelism:
-
-```bash
-export OPENBLAS_NUM_THREADS=1
-export OMP_NUM_THREADS=1
-R
-```
+Set `n_cores` in `MVMT()` to control gene-wise parallelism. On Linux or macOS, use a value such as `n_cores = 10`. On Windows, use `n_cores = 1`.
 
 ## Input files
 
@@ -115,13 +102,12 @@ The `.info` file must contain a header with `ID`, `PhysPos`, `A1`, `A2`, and `A1
 
 ## Example
 
-Place the supplied `extdata.zip` in your working directory and run:
+Run the chromosome 22 example included with the package:
 
 ```r
 library(MVMT)
 
-unzip("extdata.zip", exdir = ".")
-example_dir <- "extdata"
+example_dir <- system.file("extdata", package = "MVMT", mustWork = TRUE)
 
 results <- MVMT(
   bim_file = file.path(example_dir, "1000G_eur_unrel_ukbcom22.bim"),
@@ -169,8 +155,8 @@ Genes without valid LD data or sufficient SNPs after quality control are skipped
 
 ## License
 
-MIT. See the package `LICENSE` file.
+MIT.
 
 ## Acknowledgements
 
-This implementation builds on the original [mBAT-combo framework](https://github.com/Share-AL-work/mBAT.combo) developed by Ang Li and colleagues.
+This implementation builds on the original `mBAT-combo` framework developed by Ang Li ([https://github.com/Share-AL-work/mBAT.combo](https://github.com/Share-AL-work/mBAT.combo)).
